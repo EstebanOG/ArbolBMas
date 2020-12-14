@@ -120,7 +120,7 @@ public class ArbolB<K extends Comparable, V>
             nodo.mEsHoja = false;
             nodo.mChildren[0] = mRoot;
             mRoot = nodo;
-            splitNode(mRoot, 0, nodo.mChildren[0]);
+            dividirNodo(mRoot, 0, nodo.mChildren[0]);
         }
 
         insertKeyAtNode(mRoot, key, value);
@@ -212,7 +212,7 @@ public class ArbolB<K extends Comparable, V>
         if (nodo.mActualKeyNum == Nodo.numMaxLlaves) {
             // If the child node is a full node then handle it by splitting out
             // then insert key starting at the root node after splitting node
-            splitNode(rootNode, i, nodo);
+            dividirNodo(rootNode, i, nodo);
             insertKeyAtNode(rootNode, key, value);
             return;
         }
@@ -222,23 +222,23 @@ public class ArbolB<K extends Comparable, V>
 
 
     //
-    // Split a child with respect to its parent at a specified node
+    // Dividir un hijo con respecto a su padre en un nodo específico
     //
-    private void splitNode(Nodo nodoPadre, int nodeIdx, Nodo nodo) {
+    private void dividirNodo(Nodo nodoPadre, int nodeIdx, Nodo nodo) {
         int i;
 
         Nodo<K, V> newNode = createNode();
 
         newNode.mEsHoja = nodo.mEsHoja;
 
-        // Since the node is full,
-        // new node must share LOWER_BOUND_KEYNUM (aka t - 1) keys from the node
+        // Dado que el nodo está full,
+        // el nuevo nodo debe tener el minimo numero de llaves.
         newNode.mActualKeyNum = Nodo.numMinLlaves;
 
 
-        // Copy right half of the keys from the node to the new node
+        // Se copia la mitad derecha de las claves del nodo al nuevo nodo
         for (i = 0; i < Nodo.numMinLlaves; ++i) {
-            newNode.mKeys[i] = nodo.mKeys[i + Nodo.orden];
+            newNode.mKeys[i] = nodo.mKeys[i + Nodo.orden + 1];
             nodo.mKeys[i + Nodo.orden] = null;
         }
 
