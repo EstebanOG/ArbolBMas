@@ -8,7 +8,7 @@ package Logica;
  */
 public class Nodo<K extends Comparable, V>
 {
-    public final static int MIN_DEGREE          =   2;
+    public final static int MIN_DEGREE          =   3;
     public final static int LOWER_BOUND_KEYNUM  =   MIN_DEGREE-1;
     public final static int UPPER_BOUND_KEYNUM  =   (MIN_DEGREE * 2) - 1;
 

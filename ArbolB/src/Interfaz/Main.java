@@ -23,6 +23,7 @@ import javax.swing.JTextField;
 import Logica.*;
 import Logica.ABException;
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 
 
@@ -113,7 +114,7 @@ public class Main extends JFrame
             }
         });
 
-        generateTestData();
+        //generateTestData();
     }
 
 
@@ -249,6 +250,7 @@ public class Main extends JFrame
         hBox.add(mClearBt);
 
         mGraph.getModel().beginUpdate();
+        
         try {
             int nStartXPos;
             int nStartYPos = 10;
@@ -299,7 +301,7 @@ public class Main extends JFrame
                         ++j;
                     }
                 }
-
+                mGraph.setCellStyles (mxConstants.STYLE_FILLCOLOR, "#ffffff", cObjList.toArray ());
                 // Intercambia dos listas de objetos para el siguiente ciclo
                 tempObjList = pObjList;
                 pObjList = cObjList;
@@ -370,7 +372,7 @@ public class Main extends JFrame
 
             keyVal = treeNode.mKeys[i];
             mBuf.append(keyVal.mKey);
-            mBuf.append("("+keyVal.mValue+"");
+            mBuf.append("("+keyVal.mValue+")");
         }
 
         keyList.add(new KeyData(mBuf.toString(), currentKeyNum));
