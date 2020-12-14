@@ -301,7 +301,10 @@ public class Main extends JFrame
                         ++j;
                     }
                 }
+                
+                // Cambia color de las páginas
                 mGraph.setCellStyles (mxConstants.STYLE_FILLCOLOR, "#ffffff", cObjList.toArray ());
+                
                 // Intercambia dos listas de objetos para el siguiente ciclo
                 tempObjList = pObjList;
                 pObjList = cObjList;
@@ -350,11 +353,11 @@ public class Main extends JFrame
 
     private void generateGraphObject(Nodo<Integer, String> treeNode, int nLevel) throws ABException {
         if ((treeNode == null) ||
-            (treeNode.mCurrentKeyNum == 0)) {
+            (treeNode.mActualKeyNum == 0)) {
             return;
         }
 
-        int currentKeyNum = treeNode.mCurrentKeyNum;
+        int currentKeyNum = treeNode.mActualKeyNum;
         KeyValue<Integer, String> keyVal;
 
         List<KeyData> keyList = (List<KeyData>)mObjLists[nLevel];
@@ -377,7 +380,7 @@ public class Main extends JFrame
 
         keyList.add(new KeyData(mBuf.toString(), currentKeyNum));
 
-        if (treeNode.mIsLeaf) {
+        if (treeNode.mEsHoja) {
             return;
         }
 
@@ -414,7 +417,7 @@ public class Main extends JFrame
 
     public void addKey(Integer key, String value) {
         println("Add key = " + key);
-        mTreeTest.getBTree().insert(key, value);
+        mTreeTest.getBTree().insertar(key, value);
     }
 
 

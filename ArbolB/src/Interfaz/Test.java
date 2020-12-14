@@ -31,7 +31,7 @@ public class Test
 
     protected void add(Integer key, String value) {
         mMap.put(key, value);
-        mBTree.insert(key, value);
+        mBTree.insertar(key, value);
     }
 
     protected void delete(Integer key) throws ABException {

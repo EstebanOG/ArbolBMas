@@ -53,8 +53,8 @@ public class ArbolB<K extends Comparable, V>
     private Nodo<K, V> createNode() {
         Nodo<K, V> nodo;
         nodo = new Nodo();
-        nodo.mIsLeaf = true;
-        nodo.mCurrentKeyNum = 0;
+        nodo.mEsHoja = true;
+        nodo.mActualKeyNum = 0;
         return nodo;
     }
 
@@ -68,7 +68,7 @@ public class ArbolB<K extends Comparable, V>
         int i, numberOfKeys;
 
         while (currentNode != null) {
-            numberOfKeys = currentNode.mCurrentKeyNum;
+            numberOfKeys = currentNode.mActualKeyNum;
             i = 0;
             currentKey = currentNode.mKeys[i];
             while ((i < numberOfKeys) && (key.compareTo(currentKey.mKey) > 0)) {
@@ -106,18 +106,18 @@ public class ArbolB<K extends Comparable, V>
 
 
     //
-    // Insert key and its value into the tree
+    // Insertar la llave y su valor en el árbol
     //
-    public ArbolB insert(K key, V value) {
+    public ArbolB insertar(K key, V value) {
         if (mRoot == null) {
             mRoot = createNode();
         }
 
         ++mSize;
-        if (mRoot.mCurrentKeyNum == Nodo.UPPER_BOUND_KEYNUM) {
-            // The root is full, split it
+        if (mRoot.mActualKeyNum == Nodo.numMaxLlaves) {
+            // Dividir si la raiz está llena
             Nodo<K, V> nodo = createNode();
-            nodo.mIsLeaf = false;
+            nodo.mEsHoja = false;
             nodo.mChildren[0] = mRoot;
             mRoot = nodo;
             splitNode(mRoot, 0, nodo.mChildren[0]);
@@ -133,18 +133,18 @@ public class ArbolB<K extends Comparable, V>
     //
     private void insertKeyAtNode(Nodo rootNode, K key, V value) {
         int i;
-        int currentKeyNum = rootNode.mCurrentKeyNum;
+        int currentKeyNum = rootNode.mActualKeyNum;
 
-        if (rootNode.mIsLeaf) {
-            if (rootNode.mCurrentKeyNum == 0) {
+        if (rootNode.mEsHoja) {
+            if (rootNode.mActualKeyNum == 0) {
                 // Empty root
                 rootNode.mKeys[0] = new KeyValue<K, V>(key, value);
-                ++(rootNode.mCurrentKeyNum);
+                ++(rootNode.mActualKeyNum);
                 return;
             }
 
             // Verifica si la clave especificada no existe en el nodo
-            for (i = 0; i < rootNode.mCurrentKeyNum; ++i) {
+            for (i = 0; i < rootNode.mActualKeyNum; ++i) {
                 if (key.compareTo(rootNode.mKeys[i].mKey) == 0) {
                     // Busca la clave existente
                     rootNode.mKeys[i].mValue = value;
@@ -166,14 +166,14 @@ public class ArbolB<K extends Comparable, V>
             i = i + 1;
             rootNode.mKeys[i] = new KeyValue<K, V>(key, value);
 
-            ++(rootNode.mCurrentKeyNum);
+            ++(rootNode.mActualKeyNum);
             return;
         }
 
         // This is an internal node (i.e: not a leaf node)
         // So let find the child node where the key is supposed to belong
         i = 0;
-        int numberOfKeys = rootNode.mCurrentKeyNum;
+        int numberOfKeys = rootNode.mActualKeyNum;
         
         KeyValue<K, V> currentKey = rootNode.mKeys[i];
         System.out.println(key+"="+rootNode.mKeys[i]);
@@ -209,7 +209,7 @@ public class ArbolB<K extends Comparable, V>
             }
         }
 
-        if (nodo.mCurrentKeyNum == Nodo.UPPER_BOUND_KEYNUM) {
+        if (nodo.mActualKeyNum == Nodo.numMaxLlaves) {
             // If the child node is a full node then handle it by splitting out
             // then insert key starting at the root node after splitting node
             splitNode(rootNode, i, nodo);
@@ -224,53 +224,54 @@ public class ArbolB<K extends Comparable, V>
     //
     // Split a child with respect to its parent at a specified node
     //
-    private void splitNode(Nodo parentNode, int nodeIdx, Nodo nodo) {
+    private void splitNode(Nodo nodoPadre, int nodeIdx, Nodo nodo) {
         int i;
 
         Nodo<K, V> newNode = createNode();
 
-        newNode.mIsLeaf = nodo.mIsLeaf;
+        newNode.mEsHoja = nodo.mEsHoja;
 
         // Since the node is full,
         // new node must share LOWER_BOUND_KEYNUM (aka t - 1) keys from the node
-        newNode.mCurrentKeyNum = Nodo.LOWER_BOUND_KEYNUM;
+        newNode.mActualKeyNum = Nodo.numMinLlaves;
+
 
         // Copy right half of the keys from the node to the new node
-        for (i = 0; i < Nodo.LOWER_BOUND_KEYNUM; ++i) {
-            newNode.mKeys[i] = nodo.mKeys[i + Nodo.MIN_DEGREE];
-            nodo.mKeys[i + Nodo.MIN_DEGREE] = null;
+        for (i = 0; i < Nodo.numMinLlaves; ++i) {
+            newNode.mKeys[i] = nodo.mKeys[i + Nodo.orden];
+            nodo.mKeys[i + Nodo.orden] = null;
         }
 
         // If the node is an internal node (not a leaf),
         // copy the its child pointers at the half right as well
-        if (!nodo.mIsLeaf) {
-            for (i = 0; i < Nodo.MIN_DEGREE; ++i) {
-                newNode.mChildren[i] = nodo.mChildren[i + Nodo.MIN_DEGREE];
-                nodo.mChildren[i + Nodo.MIN_DEGREE] = null;
+        if (!nodo.mEsHoja) {
+            for (i = 0; i < Nodo.orden; ++i) {
+                newNode.mChildren[i] = nodo.mChildren[i + Nodo.orden];
+                nodo.mChildren[i + Nodo.orden] = null;
             }
         }
 
         // The node at this point should have LOWER_BOUND_KEYNUM (aka min degree - 1) keys at this point.
         // We will move its right-most key to its parent node later.
-        nodo.mCurrentKeyNum = Nodo.LOWER_BOUND_KEYNUM;
+        nodo.mActualKeyNum = Nodo.numMinLlaves;
 
         // Do the right shift for relevant child pointers of the parent node
         // so that we can put the new node as its new child pointer
-        for (i = parentNode.mCurrentKeyNum; i > nodeIdx; --i) {
-            parentNode.mChildren[i + 1] = parentNode.mChildren[i];
-            parentNode.mChildren[i] = null;
+        for (i = nodoPadre.mActualKeyNum; i > nodeIdx; --i) {
+            nodoPadre.mChildren[i + 1] = nodoPadre.mChildren[i];
+            nodoPadre.mChildren[i] = null;
         }
-        parentNode.mChildren[nodeIdx + 1] = newNode;
+        nodoPadre.mChildren[nodeIdx + 1] = newNode;
 
         // Do the right shift all the keys of the parent node the right side of the node index as well
         // so that we will have a slot for move a median key from the splitted node
-        for (i = parentNode.mCurrentKeyNum - 1; i >= nodeIdx; --i) {
-            parentNode.mKeys[i + 1] = parentNode.mKeys[i];
-            parentNode.mKeys[i] = null;
+        for (i = nodoPadre.mActualKeyNum - 1; i >= nodeIdx; --i) {
+            nodoPadre.mKeys[i + 1] = nodoPadre.mKeys[i];
+            nodoPadre.mKeys[i] = null;
         }
-        parentNode.mKeys[nodeIdx] = nodo.mKeys[Nodo.LOWER_BOUND_KEYNUM];
-        nodo.mKeys[Nodo.LOWER_BOUND_KEYNUM] = null;
-        ++(parentNode.mCurrentKeyNum);
+        nodoPadre.mKeys[nodeIdx] = nodo.mKeys[Nodo.numMinLlaves];
+        nodo.mKeys[Nodo.numMinLlaves] = null;
+        ++(nodoPadre.mActualKeyNum);
     }
 
 
@@ -278,7 +279,7 @@ public class ArbolB<K extends Comparable, V>
     // Find the predecessor node for a specified node
     //
     private Nodo<K, V> findPredecessor(Nodo<K, V> nodo, int nodeIdx) {
-        if (nodo.mIsLeaf) {
+        if (nodo.mEsHoja) {
             return nodo;
         }
 
@@ -294,10 +295,10 @@ public class ArbolB<K extends Comparable, V>
             return nodo;
         }
 
-        predecessorNode = Nodo.getRightChildAtIndex(nodo, nodo.mCurrentKeyNum - 1);
+        predecessorNode = Nodo.getRightChildAtIndex(nodo, nodo.mActualKeyNum - 1);
         if (predecessorNode != null) {
             mIntermediateInternalNode = nodo;
-            mNodeIdx = nodo.mCurrentKeyNum;
+            mNodeIdx = nodo.mActualKeyNum;
             nodo = findPredecessorForNode(predecessorNode, -1);
         }
 
@@ -321,7 +322,7 @@ public class ArbolB<K extends Comparable, V>
             return nodo;
         }
 
-        predecessorNode = Nodo.getRightChildAtIndex(nodo, nodo.mCurrentKeyNum - 1);
+        predecessorNode = Nodo.getRightChildAtIndex(nodo, nodo.mActualKeyNum - 1);
         if (predecessorNode != null) {
             nodo = findPredecessorForNode(predecessorNode, -1);
             rebalanceTreeAtNode(originalNode, predecessorNode, keyIdx, REBALANCE_FOR_LEAF_NODE);
@@ -345,20 +346,20 @@ public class ArbolB<K extends Comparable, V>
         */
 
         // Move the parent key and relevant child to the deficient node
-        nodo.mKeys[nodo.mCurrentKeyNum] = parentNode.mKeys[parentKeyIdx];
-        nodo.mChildren[nodo.mCurrentKeyNum + 1] = rightSiblingNode.mChildren[0];
-        ++(nodo.mCurrentKeyNum);
+        nodo.mKeys[nodo.mActualKeyNum] = parentNode.mKeys[parentKeyIdx];
+        nodo.mChildren[nodo.mActualKeyNum + 1] = rightSiblingNode.mChildren[0];
+        ++(nodo.mActualKeyNum);
 
         // Move the leftmost key of the right sibling and relevant child pointer to the parent node
         parentNode.mKeys[parentKeyIdx] = rightSiblingNode.mKeys[0];
-        --(rightSiblingNode.mCurrentKeyNum);
+        --(rightSiblingNode.mActualKeyNum);
         // Shift all keys and children of the right sibling to its left
-        for (int i = 0; i < rightSiblingNode.mCurrentKeyNum; ++i) {
+        for (int i = 0; i < rightSiblingNode.mActualKeyNum; ++i) {
             rightSiblingNode.mKeys[i] = rightSiblingNode.mKeys[i + 1];
             rightSiblingNode.mChildren[i] = rightSiblingNode.mChildren[i + 1];
         }
-        rightSiblingNode.mChildren[rightSiblingNode.mCurrentKeyNum] = rightSiblingNode.mChildren[rightSiblingNode.mCurrentKeyNum + 1];
-        rightSiblingNode.mChildren[rightSiblingNode.mCurrentKeyNum + 1] = null;
+        rightSiblingNode.mChildren[rightSiblingNode.mActualKeyNum] = rightSiblingNode.mChildren[rightSiblingNode.mActualKeyNum + 1];
+        rightSiblingNode.mChildren[rightSiblingNode.mActualKeyNum + 1] = null;
     }
 
 
@@ -367,28 +368,28 @@ public class ArbolB<K extends Comparable, V>
     //
     private void performRightRotation(Nodo<K, V> nodo, int nodeIdx, Nodo<K, V> parentNode, Nodo<K, V> leftSiblingNode) {
         int parentKeyIdx = nodeIdx;
-        if (nodeIdx >= parentNode.mCurrentKeyNum) {
+        if (nodeIdx >= parentNode.mActualKeyNum) {
             // This shouldn't happen
             parentKeyIdx = nodeIdx - 1;
         }
 
         // Shift all keys and children of the deficient node to the right
         // So that there will be available left slot for insertion
-        nodo.mChildren[nodo.mCurrentKeyNum + 1] = nodo.mChildren[nodo.mCurrentKeyNum];
-        for (int i = nodo.mCurrentKeyNum - 1; i >= 0; --i) {
+        nodo.mChildren[nodo.mActualKeyNum + 1] = nodo.mChildren[nodo.mActualKeyNum];
+        for (int i = nodo.mActualKeyNum - 1; i >= 0; --i) {
             nodo.mKeys[i + 1] = nodo.mKeys[i];
             nodo.mChildren[i + 1] = nodo.mChildren[i];
         }
 
         // Move the parent key and relevant child to the deficient node
         nodo.mKeys[0] = parentNode.mKeys[parentKeyIdx];
-        nodo.mChildren[0] = leftSiblingNode.mChildren[leftSiblingNode.mCurrentKeyNum];
-        ++(nodo.mCurrentKeyNum);
+        nodo.mChildren[0] = leftSiblingNode.mChildren[leftSiblingNode.mActualKeyNum];
+        ++(nodo.mActualKeyNum);
 
         // Move the leftmost key of the right sibling and relevant child pointer to the parent node
-        parentNode.mKeys[parentKeyIdx] = leftSiblingNode.mKeys[leftSiblingNode.mCurrentKeyNum - 1];
-        leftSiblingNode.mChildren[leftSiblingNode.mCurrentKeyNum] = null;
-        --(leftSiblingNode.mCurrentKeyNum);
+        parentNode.mKeys[parentKeyIdx] = leftSiblingNode.mKeys[leftSiblingNode.mActualKeyNum - 1];
+        leftSiblingNode.mChildren[leftSiblingNode.mActualKeyNum] = null;
+        --(leftSiblingNode.mActualKeyNum);
     }
 
 
@@ -398,47 +399,47 @@ public class ArbolB<K extends Comparable, V>
     // Return false if it is done
     //
     private boolean performMergeWithLeftSibling(Nodo<K, V> nodo, int nodeIdx, Nodo<K, V> parentNode, Nodo<K, V> leftSiblingNode) {
-        if (nodeIdx == parentNode.mCurrentKeyNum) {
+        if (nodeIdx == parentNode.mActualKeyNum) {
             // For the case that the node index can be the right most
             nodeIdx = nodeIdx - 1;
         }
 
         // Here we need to determine the parent node's index based on child node's index (nodeIdx)
         if (nodeIdx > 0) {
-            if (leftSiblingNode.mKeys[leftSiblingNode.mCurrentKeyNum - 1].mKey.compareTo(parentNode.mKeys[nodeIdx - 1].mKey) < 0) {
+            if (leftSiblingNode.mKeys[leftSiblingNode.mActualKeyNum - 1].mKey.compareTo(parentNode.mKeys[nodeIdx - 1].mKey) < 0) {
                 nodeIdx = nodeIdx - 1;
             }
         }
 
         // Copy the parent key to the node (on the left)
-        leftSiblingNode.mKeys[leftSiblingNode.mCurrentKeyNum] = parentNode.mKeys[nodeIdx];
-        ++(leftSiblingNode.mCurrentKeyNum);
+        leftSiblingNode.mKeys[leftSiblingNode.mActualKeyNum] = parentNode.mKeys[nodeIdx];
+        ++(leftSiblingNode.mActualKeyNum);
 
         // Copy keys and children of the node to the left sibling node
-        for (int i = 0; i < nodo.mCurrentKeyNum; ++i) {
-            leftSiblingNode.mKeys[leftSiblingNode.mCurrentKeyNum + i] = nodo.mKeys[i];
-            leftSiblingNode.mChildren[leftSiblingNode.mCurrentKeyNum + i] = nodo.mChildren[i];
+        for (int i = 0; i < nodo.mActualKeyNum; ++i) {
+            leftSiblingNode.mKeys[leftSiblingNode.mActualKeyNum + i] = nodo.mKeys[i];
+            leftSiblingNode.mChildren[leftSiblingNode.mActualKeyNum + i] = nodo.mChildren[i];
             nodo.mKeys[i] = null;
         }
-        leftSiblingNode.mCurrentKeyNum += nodo.mCurrentKeyNum;
-        leftSiblingNode.mChildren[leftSiblingNode.mCurrentKeyNum] = nodo.mChildren[nodo.mCurrentKeyNum];
-        nodo.mCurrentKeyNum = 0;  // Abandon the node
+        leftSiblingNode.mActualKeyNum += nodo.mActualKeyNum;
+        leftSiblingNode.mChildren[leftSiblingNode.mActualKeyNum] = nodo.mChildren[nodo.mActualKeyNum];
+        nodo.mActualKeyNum = 0;  // Abandon the node
 
         // Shift all relevant keys and children of the parent node to the left
         // since it lost one of its keys and children (by moving it to the child node)
         int i;
-        for (i = nodeIdx; i < parentNode.mCurrentKeyNum - 1; ++i) {
+        for (i = nodeIdx; i < parentNode.mActualKeyNum - 1; ++i) {
             parentNode.mKeys[i] = parentNode.mKeys[i + 1];
             parentNode.mChildren[i + 1] = parentNode.mChildren[i + 2];
         }
         parentNode.mKeys[i] = null;
-        parentNode.mChildren[parentNode.mCurrentKeyNum] = null;
-        --(parentNode.mCurrentKeyNum);
+        parentNode.mChildren[parentNode.mActualKeyNum] = null;
+        --(parentNode.mActualKeyNum);
 
         // Make sure the parent point to the correct child after the merge
         parentNode.mChildren[nodeIdx] = leftSiblingNode;
 
-        if ((parentNode == mRoot) && (parentNode.mCurrentKeyNum == 0)) {
+        if ((parentNode == mRoot) && (parentNode.mActualKeyNum == 0)) {
             // Root node is updated.  It should be done
             mRoot = leftSiblingNode;
             return false;
@@ -455,33 +456,33 @@ public class ArbolB<K extends Comparable, V>
     //
     private boolean performMergeWithRightSibling(Nodo<K, V> nodo, int nodeIdx, Nodo<K, V> parentNode, Nodo<K, V> rightSiblingNode) {
         // Copy the parent key to right-most slot of the node
-        nodo.mKeys[nodo.mCurrentKeyNum] = parentNode.mKeys[nodeIdx];
-        ++(nodo.mCurrentKeyNum);
+        nodo.mKeys[nodo.mActualKeyNum] = parentNode.mKeys[nodeIdx];
+        ++(nodo.mActualKeyNum);
 
         // Copy keys and children of the right sibling to the node
-        for (int i = 0; i < rightSiblingNode.mCurrentKeyNum; ++i) {
-            nodo.mKeys[nodo.mCurrentKeyNum + i] = rightSiblingNode.mKeys[i];
-            nodo.mChildren[nodo.mCurrentKeyNum + i] = rightSiblingNode.mChildren[i];
+        for (int i = 0; i < rightSiblingNode.mActualKeyNum; ++i) {
+            nodo.mKeys[nodo.mActualKeyNum + i] = rightSiblingNode.mKeys[i];
+            nodo.mChildren[nodo.mActualKeyNum + i] = rightSiblingNode.mChildren[i];
         }
-        nodo.mCurrentKeyNum += rightSiblingNode.mCurrentKeyNum;
-        nodo.mChildren[nodo.mCurrentKeyNum] = rightSiblingNode.mChildren[rightSiblingNode.mCurrentKeyNum];
-        rightSiblingNode.mCurrentKeyNum = 0;  // Abandon the sibling node
+        nodo.mActualKeyNum += rightSiblingNode.mActualKeyNum;
+        nodo.mChildren[nodo.mActualKeyNum] = rightSiblingNode.mChildren[rightSiblingNode.mActualKeyNum];
+        rightSiblingNode.mActualKeyNum = 0;  // Abandon the sibling node
 
         // Shift all relevant keys and children of the parent node to the left
         // since it lost one of its keys and children (by moving it to the child node)
         int i;
-        for (i = nodeIdx; i < parentNode.mCurrentKeyNum - 1; ++i) {
+        for (i = nodeIdx; i < parentNode.mActualKeyNum - 1; ++i) {
             parentNode.mKeys[i] = parentNode.mKeys[i + 1];
             parentNode.mChildren[i + 1] = parentNode.mChildren[i + 2];
         }
         parentNode.mKeys[i] = null;
-        parentNode.mChildren[parentNode.mCurrentKeyNum] = null;
-        --(parentNode.mCurrentKeyNum);
+        parentNode.mChildren[parentNode.mActualKeyNum] = null;
+        --(parentNode.mActualKeyNum);
 
         // Make sure the parent point to the correct child after the merge
         parentNode.mChildren[nodeIdx] = nodo;
 
-        if ((parentNode == mRoot) && (parentNode.mCurrentKeyNum == 0)) {
+        if ((parentNode == mRoot) && (parentNode.mActualKeyNum == 0)) {
             // Root node is updated.  It should be done
             mRoot = nodo;
             return false;
@@ -497,7 +498,7 @@ public class ArbolB<K extends Comparable, V>
     // Return -1 otherwise
     //
     private int searchKey(Nodo<K, V> nodo, K key) {
-        for (int i = 0; i < nodo.mCurrentKeyNum; ++i) {
+        for (int i = 0; i < nodo.mActualKeyNum; ++i) {
             if (key.compareTo(nodo.mKeys[i].mKey) == 0) {
                 return i;
             }
@@ -533,13 +534,13 @@ public class ArbolB<K extends Comparable, V>
     //
     private boolean listEntriesInOrder(Nodo<K, V> treeNode, Iterator<K, V> iterImpl) {
         if ((treeNode == null) ||
-            (treeNode.mCurrentKeyNum == 0)) {
+            (treeNode.mActualKeyNum == 0)) {
             return false;
         }
 
         boolean bStatus;
         KeyValue<K, V> keyVal;
-        int currentKeyNum = treeNode.mCurrentKeyNum;
+        int currentKeyNum = treeNode.mActualKeyNum;
         for (int i = 0; i < currentKeyNum; ++i) {
             listEntriesInOrder(Nodo.getLeftChildAtIndex(treeNode, i), iterImpl);
 
@@ -587,7 +588,7 @@ public class ArbolB<K extends Comparable, V>
             return null;
         }
 
-        if (nodo.mIsLeaf) {
+        if (nodo.mEsHoja) {
             nIdx = searchKey(nodo, key);
             if (nIdx < 0) {
                 // Can't find the specified key
@@ -596,15 +597,15 @@ public class ArbolB<K extends Comparable, V>
 
             retVal = nodo.mKeys[nIdx];
 
-            if ((nodo.mCurrentKeyNum > Nodo.LOWER_BOUND_KEYNUM) || (parentNode == null)) {
+            if ((nodo.mActualKeyNum > Nodo.numMinLlaves) || (parentNode == null)) {
                 // Remove it from the node
-                for (i = nIdx; i < nodo.mCurrentKeyNum - 1; ++i) {
+                for (i = nIdx; i < nodo.mActualKeyNum - 1; ++i) {
                     nodo.mKeys[i] = nodo.mKeys[i + 1];
                 }
                 nodo.mKeys[i] = null;
-                --(nodo.mCurrentKeyNum);
+                --(nodo.mActualKeyNum);
 
-                if (nodo.mCurrentKeyNum == 0) {
+                if (nodo.mActualKeyNum == 0) {
                     // nodo is actually the root node
                     mRoot = null;
                 }
@@ -615,13 +616,13 @@ public class ArbolB<K extends Comparable, V>
             // Find the left sibling
             Nodo<K, V> rightSibling;
             Nodo<K, V> leftSibling = Nodo.getLeftSiblingAtIndex(parentNode, nodeIdx);
-            if ((leftSibling != null) && (leftSibling.mCurrentKeyNum > Nodo.LOWER_BOUND_KEYNUM)) {
+            if ((leftSibling != null) && (leftSibling.mActualKeyNum > Nodo.numMinLlaves)) {
                 // Remove the key and borrow a key from the left sibling
                 moveLeftLeafSiblingKeyWithKeyRemoval(nodo, nodeIdx, nIdx, parentNode, leftSibling);
             }
             else {
                 rightSibling = Nodo.getRightSiblingAtIndex(parentNode, nodeIdx);
-                if ((rightSibling != null) && (rightSibling.mCurrentKeyNum > Nodo.LOWER_BOUND_KEYNUM)) {
+                if ((rightSibling != null) && (rightSibling.mActualKeyNum > Nodo.numMinLlaves)) {
                     // Remove a key and borrow a key the right sibling
                     moveRightLeafSiblingKeyWithKeyRemoval(nodo, nodeIdx, nIdx, parentNode, rightSibling);
                 }
@@ -635,7 +636,7 @@ public class ArbolB<K extends Comparable, V>
                         if (!bStatus) {
                             isRebalanceNeeded = false;
                         }
-                        else if (parentNode.mCurrentKeyNum < Nodo.LOWER_BOUND_KEYNUM) {
+                        else if (parentNode.mActualKeyNum < Nodo.numMinLlaves) {
                             // Need to rebalance the tree
                             isRebalanceNeeded = true;
                         }
@@ -646,7 +647,7 @@ public class ArbolB<K extends Comparable, V>
                         if (!bStatus) {
                             isRebalanceNeeded = false;
                         }
-                        else if (parentNode.mCurrentKeyNum < Nodo.LOWER_BOUND_KEYNUM) {
+                        else if (parentNode.mActualKeyNum < Nodo.numMinLlaves) {
                             // Need to rebalance the tree
                             isRebalanceNeeded = true;
                         }
@@ -673,12 +674,12 @@ public class ArbolB<K extends Comparable, V>
             mIntermediateInternalNode = nodo;
             mNodeIdx = nIdx;
             Nodo<K, V> predecessorNode =  findPredecessor(nodo, nIdx);
-            KeyValue<K, V> predecessorKey = predecessorNode.mKeys[predecessorNode.mCurrentKeyNum - 1];
+            KeyValue<K, V> predecessorKey = predecessorNode.mKeys[predecessorNode.mActualKeyNum - 1];
 
             // Swap the data of the deleted key and its predecessor (in the leaf node)
             KeyValue<K, V> deletedKey = nodo.mKeys[nIdx];
             nodo.mKeys[nIdx] = predecessorKey;
-            predecessorNode.mKeys[predecessorNode.mCurrentKeyNum - 1] = deletedKey;
+            predecessorNode.mKeys[predecessorNode.mActualKeyNum - 1] = deletedKey;
 
             // mIntermediateNode is done in findPrecessor
             return deleteKey(mIntermediateInternalNode, predecessorNode, deletedKey.mKey, mNodeIdx);
@@ -689,9 +690,9 @@ public class ArbolB<K extends Comparable, V>
         //
         i = 0;
         KeyValue<K, V> currentKey = nodo.mKeys[0];
-        while ((i < nodo.mCurrentKeyNum) && (key.compareTo(currentKey.mKey) > 0)) {
+        while ((i < nodo.mActualKeyNum) && (key.compareTo(currentKey.mKey) > 0)) {
             ++i;
-            if (i < nodo.mCurrentKeyNum) {
+            if (i < nodo.mActualKeyNum) {
                 currentKey = nodo.mKeys[i];
             }
             else {
@@ -703,7 +704,7 @@ public class ArbolB<K extends Comparable, V>
         Nodo<K, V> childNode;
         if (key.compareTo(currentKey.mKey) > 0) {
             childNode = Nodo.getRightChildAtIndex(nodo, i);
-            if (childNode.mKeys[0].mKey.compareTo(nodo.mKeys[nodo.mCurrentKeyNum - 1].mKey) > 0) {
+            if (childNode.mKeys[0].mKey.compareTo(nodo.mKeys[nodo.mActualKeyNum - 1].mKey) > 0) {
                 // The right-most side of the node
                 i = i + 1;
             }
@@ -726,18 +727,18 @@ public class ArbolB<K extends Comparable, V>
                                                        Nodo<K, V> parentNode,
                                                        Nodo<K, V> rightSiblingNode) {
         // Shift to the right where the key is deleted
-        for (int i = keyIdx; i < nodo.mCurrentKeyNum - 1; ++i) {
+        for (int i = keyIdx; i < nodo.mActualKeyNum - 1; ++i) {
             nodo.mKeys[i] = nodo.mKeys[i + 1];
         }
 
-        nodo.mKeys[nodo.mCurrentKeyNum - 1] = parentNode.mKeys[nodeIdx];
+        nodo.mKeys[nodo.mActualKeyNum - 1] = parentNode.mKeys[nodeIdx];
         parentNode.mKeys[nodeIdx] = rightSiblingNode.mKeys[0];
 
-        for (int i = 0; i < rightSiblingNode.mCurrentKeyNum - 1; ++i) {
+        for (int i = 0; i < rightSiblingNode.mActualKeyNum - 1; ++i) {
             rightSiblingNode.mKeys[i] = rightSiblingNode.mKeys[i + 1];
         }
 
-        --(rightSiblingNode.mCurrentKeyNum);
+        --(rightSiblingNode.mActualKeyNum);
     }
 
 
@@ -759,8 +760,8 @@ public class ArbolB<K extends Comparable, V>
         }
 
         nodo.mKeys[0] = parentNode.mKeys[nodeIdx];
-        parentNode.mKeys[nodeIdx] = leftSiblingNode.mKeys[leftSiblingNode.mCurrentKeyNum - 1];
-        --(leftSiblingNode.mCurrentKeyNum);
+        parentNode.mKeys[nodeIdx] = leftSiblingNode.mKeys[leftSiblingNode.mActualKeyNum - 1];
+        --(leftSiblingNode.mActualKeyNum);
     }
 
 
@@ -777,14 +778,14 @@ public class ArbolB<K extends Comparable, V>
                                                      boolean isRightSibling) {
         int i;
 
-        if (nodeIdx == parentNode.mCurrentKeyNum) {
+        if (nodeIdx == parentNode.mActualKeyNum) {
             // Case node index can be the right most
             nodeIdx = nodeIdx - 1;
         }
 
         if (isRightSibling) {
             // Shift the remained keys of the node to the left to remove the key
-            for (i = keyIdx; i < nodo.mCurrentKeyNum - 1; ++i) {
+            for (i = keyIdx; i < nodo.mActualKeyNum - 1; ++i) {
                 nodo.mKeys[i] = nodo.mKeys[i + 1];
             }
             nodo.mKeys[i] = parentNode.mKeys[nodeIdx];
@@ -792,47 +793,47 @@ public class ArbolB<K extends Comparable, V>
         else {
             // Here we need to determine the parent node id based on child node id (nodeIdx)
             if (nodeIdx > 0) {
-                if (siblingNode.mKeys[siblingNode.mCurrentKeyNum - 1].mKey.compareTo(parentNode.mKeys[nodeIdx - 1].mKey) < 0) {
+                if (siblingNode.mKeys[siblingNode.mActualKeyNum - 1].mKey.compareTo(parentNode.mKeys[nodeIdx - 1].mKey) < 0) {
                     nodeIdx = nodeIdx - 1;
                 }
             }
 
-            siblingNode.mKeys[siblingNode.mCurrentKeyNum] = parentNode.mKeys[nodeIdx];
+            siblingNode.mKeys[siblingNode.mActualKeyNum] = parentNode.mKeys[nodeIdx];
             // siblingNode.mKeys[siblingNode.mCurrentKeyNum] = parentNode.mKeys[0];
-            ++(siblingNode.mCurrentKeyNum);
+            ++(siblingNode.mActualKeyNum);
 
             // Shift the remained keys of the node to the left to remove the key
-            for (i = keyIdx; i < nodo.mCurrentKeyNum - 1; ++i) {
+            for (i = keyIdx; i < nodo.mActualKeyNum - 1; ++i) {
                 nodo.mKeys[i] = nodo.mKeys[i + 1];
             }
             nodo.mKeys[i] = null;
-            --(nodo.mCurrentKeyNum);
+            --(nodo.mActualKeyNum);
         }
 
         if (isRightSibling) {
-            for (i = 0; i < siblingNode.mCurrentKeyNum; ++i) {
-                nodo.mKeys[nodo.mCurrentKeyNum + i] = siblingNode.mKeys[i];
+            for (i = 0; i < siblingNode.mActualKeyNum; ++i) {
+                nodo.mKeys[nodo.mActualKeyNum + i] = siblingNode.mKeys[i];
                 siblingNode.mKeys[i] = null;
             }
-            nodo.mCurrentKeyNum += siblingNode.mCurrentKeyNum;
+            nodo.mActualKeyNum += siblingNode.mActualKeyNum;
         }
         else {
-            for (i = 0; i < nodo.mCurrentKeyNum; ++i) {
-                siblingNode.mKeys[siblingNode.mCurrentKeyNum + i] = nodo.mKeys[i];
+            for (i = 0; i < nodo.mActualKeyNum; ++i) {
+                siblingNode.mKeys[siblingNode.mActualKeyNum + i] = nodo.mKeys[i];
                 nodo.mKeys[i] = null;
             }
-            siblingNode.mCurrentKeyNum += nodo.mCurrentKeyNum;
-            nodo.mKeys[nodo.mCurrentKeyNum] = null;
+            siblingNode.mActualKeyNum += nodo.mActualKeyNum;
+            nodo.mKeys[nodo.mActualKeyNum] = null;
         }
 
         // Shift the parent keys accordingly after the merge of child nodes
-        for (i = nodeIdx; i < parentNode.mCurrentKeyNum - 1; ++i) {
+        for (i = nodeIdx; i < parentNode.mActualKeyNum - 1; ++i) {
             parentNode.mKeys[i] = parentNode.mKeys[i + 1];
             parentNode.mChildren[i + 1] = parentNode.mChildren[i + 2];
         }
         parentNode.mKeys[i] = null;
-        parentNode.mChildren[parentNode.mCurrentKeyNum] = null;
-        --(parentNode.mCurrentKeyNum);
+        parentNode.mChildren[parentNode.mActualKeyNum] = null;
+        --(parentNode.mActualKeyNum);
 
         if (isRightSibling) {
             parentNode.mChildren[nodeIdx] = nodo;
@@ -841,10 +842,10 @@ public class ArbolB<K extends Comparable, V>
             parentNode.mChildren[nodeIdx] = siblingNode;
         }
 
-        if ((mRoot == parentNode) && (mRoot.mCurrentKeyNum == 0)) {
+        if ((mRoot == parentNode) && (mRoot.mActualKeyNum == 0)) {
             // Only root left
             mRoot = parentNode.mChildren[nodeIdx];
-            mRoot.mIsLeaf = true;
+            mRoot.mEsHoja = true;
             return false;  // Root has been changed, we don't need to go futher
         }
 
@@ -878,20 +879,20 @@ public class ArbolB<K extends Comparable, V>
             }
         }
 
-        if (nodo.mCurrentKeyNum >= Nodo.LOWER_BOUND_KEYNUM) {
+        if (nodo.mActualKeyNum >= Nodo.numMinLlaves) {
             // The node doesn't need to rebalance
             return false;
         }
 
         Nodo<K, V> rightSiblingNode;
         Nodo<K, V> leftSiblingNode = Nodo.getLeftSiblingAtIndex(parentNode, nodeIdx);
-        if ((leftSiblingNode != null) && (leftSiblingNode.mCurrentKeyNum > Nodo.LOWER_BOUND_KEYNUM)) {
+        if ((leftSiblingNode != null) && (leftSiblingNode.mActualKeyNum > Nodo.numMinLlaves)) {
             // Do right rotate
             performRightRotation(nodo, nodeIdx, parentNode, leftSiblingNode);
         }
         else {
             rightSiblingNode = Nodo.getRightSiblingAtIndex(parentNode, nodeIdx);
-            if ((rightSiblingNode != null) && (rightSiblingNode.mCurrentKeyNum > Nodo.LOWER_BOUND_KEYNUM)) {
+            if ((rightSiblingNode != null) && (rightSiblingNode.mActualKeyNum > Nodo.numMinLlaves)) {
                 // Do left rotate
                 performLeftRotation(nodo, nodeIdx, parentNode, rightSiblingNode);
             }
@@ -929,12 +930,12 @@ public class ArbolB<K extends Comparable, V>
         KeyValue<K, V> currentKey;
         int i;
         parentNode = upperNode;
-        while ((parentNode != lowerNode) && !parentNode.mIsLeaf) {
+        while ((parentNode != lowerNode) && !parentNode.mEsHoja) {
             currentKey = parentNode.mKeys[0];
             i = 0;
-            while ((i < parentNode.mCurrentKeyNum) && (key.compareTo(currentKey.mKey) > 0)) {
+            while ((i < parentNode.mActualKeyNum) && (key.compareTo(currentKey.mKey) > 0)) {
                 ++i;
-                if (i < parentNode.mCurrentKeyNum) {
+                if (i < parentNode.mActualKeyNum) {
                     currentKey = parentNode.mKeys[i];
                 }
                 else {
@@ -945,7 +946,7 @@ public class ArbolB<K extends Comparable, V>
 
             if (key.compareTo(currentKey.mKey) > 0) {
                 childNode = Nodo.getRightChildAtIndex(parentNode, i);
-                if (childNode.mKeys[0].mKey.compareTo(parentNode.mKeys[parentNode.mCurrentKeyNum - 1].mKey) > 0) {
+                if (childNode.mKeys[0].mKey.compareTo(parentNode.mKeys[parentNode.mActualKeyNum - 1].mKey) > 0) {
                     // The right-most side of the node
                     i = i + 1;
                 }
@@ -970,7 +971,7 @@ public class ArbolB<K extends Comparable, V>
         StackInfo stackInfo;
         while (!mStackTracer.isEmpty()) {
             stackInfo = mStackTracer.pop();
-            if ((stackInfo != null) && !stackInfo.mNode.mIsLeaf) {
+            if ((stackInfo != null) && !stackInfo.mNode.mEsHoja) {
                 bStatus = rebalanceTreeAtNode(stackInfo.mParent,
                                               stackInfo.mNode,
                                               stackInfo.mNodeIdx,

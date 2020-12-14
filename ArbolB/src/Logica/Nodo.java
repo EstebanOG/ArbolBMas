@@ -1,38 +1,33 @@
 package Logica;
 
 
-
-/**
- * Class Nodo
- * @author tnguyen
- */
 public class Nodo<K extends Comparable, V>
 {
-    public final static int MIN_DEGREE          =   3;
-    public final static int LOWER_BOUND_KEYNUM  =   MIN_DEGREE-1;
-    public final static int UPPER_BOUND_KEYNUM  =   (MIN_DEGREE * 2) - 1;
+    public final static int orden          =   2;
+    public final static int numMinLlaves  =   orden;
+    public final static int numMaxLlaves  =   orden * 2;
 
-    public boolean mIsLeaf;
-    public int mCurrentKeyNum;
+    public boolean mEsHoja;
+    public int mActualKeyNum;
     public KeyValue<K, V> mKeys[];
     public Nodo mChildren[];
 
 
     public Nodo() {
-        mIsLeaf = true;
-        mCurrentKeyNum = 0;
-        mKeys = new KeyValue[UPPER_BOUND_KEYNUM];
-        mChildren = new Nodo[UPPER_BOUND_KEYNUM + 1];
+        mEsHoja = true;
+        mActualKeyNum = 0;
+        mKeys = new KeyValue[numMaxLlaves];
+        mChildren = new Nodo[numMaxLlaves + 1];
     }
 
 
     protected static Nodo getChildNodeAtIndex(Nodo nodo, int keyIdx, int nDirection) {
-        if (nodo.mIsLeaf) {
+        if (nodo.mEsHoja) {
             return null;
         }
 
         keyIdx += nDirection;
-        if ((keyIdx < 0) || (keyIdx > nodo.mCurrentKeyNum)) {
+        if ((keyIdx < 0) || (keyIdx > nodo.mActualKeyNum)) {
             return null;
         }
 
