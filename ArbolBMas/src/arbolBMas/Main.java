@@ -1,5 +1,6 @@
-package Interfaz;
+package arbolBMas;
 
+import static arbolBMas.TipoNodoArbol.NodoHoja;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -20,30 +21,21 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import Logica.*;
-import Logica.ABException;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 
+public class Main extends JFrame {
 
+    public final static int APP_WIDTH = 1140;
+    public final static int APP_HEIGHT = 650;
+    public final static int HEIGHT_STEP = 80;
+    public final static int NODE_HEIGHT = 30;
+    public final static int NODE_DIST = 16;
+    public final static int TREE_HEIGHT = 32;
 
-/**
- * Class Main
- * @author tnguyen
- */
-public class Main extends JFrame
-{
-    public final static int APP_WIDTH       =   1140;
-    public final static int APP_HEIGHT      =   650;
-    public final static int HEIGHT_STEP     =   80;
-    public final static int NODE_HEIGHT     =   30;
-    public final static int NODE_DIST       =   16;
-    public final static int TREE_HEIGHT     =   32;
-
-    private final Test mTreeTest;
     private final StringBuilder mBuf;
-    private final Object []mObjLists;
+    private final Object[] mObjLists;
     private mxGraph mGraph;
     // private mxGraphComponent mGraphComponent;
     private final JTextField mText, nText;
@@ -52,11 +44,12 @@ public class Main extends JFrame
     private final JButton mClearBt, mSearchKeyBt;
     private final JButton mListBt;
     private final JTextArea mOutputConsole;
-
+    private final ArbolBMas<Integer, String> arbolBMas;
 
     public Main() {
         super("Arbol B");
-        mTreeTest = new Test();
+//        mTreeTest = new Test();
+        arbolBMas = new ArbolBMas<Integer, String>();
         mBuf = new StringBuilder();
         mObjLists = new Object[TREE_HEIGHT];
         mAddBt = new JButton("Insertar");
@@ -71,45 +64,44 @@ public class Main extends JFrame
         mOutputConsole = new JTextArea(4, 80);
 
         // mText.addAncestorListener(new RequestFocusListener());
-
         mSearchKeyBt.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { 
+            public void actionPerformed(ActionEvent e) {
                 searchButtonPressed();
             }
         });
 
         mAddBt.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { 
+            public void actionPerformed(ActionEvent e) {
                 addButtonPressed();
             }
         });
 
         mRemoveBt.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { 
+            public void actionPerformed(ActionEvent e) {
                 removeButtonPressed();
             }
         });
 
         mAddMoreBt.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { 
+            public void actionPerformed(ActionEvent e) {
                 addMoreButtonPressed();
             }
         });
 
         mRemoveMoreBt.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { 
+            public void actionPerformed(ActionEvent e) {
                 removeMoreButtonPressed();
             }
         });
 
         mListBt.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { 
+            public void actionPerformed(ActionEvent e) {
                 listButtonPressed();
             }
         });
 
         mClearBt.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { 
+            public void actionPerformed(ActionEvent e) {
                 clearButtonPressed();
             }
         });
@@ -117,22 +109,19 @@ public class Main extends JFrame
         //generateTestData();
     }
 
-
     private Integer getInputValue() {
         String strInput = mText.getText().trim();
         int nVal;
 
         try {
             nVal = Integer.parseInt(strInput);
-        }
-        catch (java.lang.Exception ex) {
+        } catch (java.lang.Exception ex) {
             return null;
         }
 
         mText.setFocusable(true);
         return nVal;
     }
-
 
     public void searchButtonPressed() {
         Integer in = getInputValue();
@@ -143,7 +132,6 @@ public class Main extends JFrame
         mText.setText("");
         searchKey(in);
     }
-
 
     public void addButtonPressed() {
         Integer in = getInputValue();
@@ -158,7 +146,6 @@ public class Main extends JFrame
         render();
     }
 
-
     public void removeButtonPressed() {
         Integer in = getInputValue();
         if (in == null) {
@@ -167,10 +154,9 @@ public class Main extends JFrame
 
         mText.setText("");
         nText.setText("");
-        deleteKey(in);
+//        deleteKey(in);
         render();
     }
-
 
     public void addMoreButtonPressed() {
         Integer in = getInputValue();
@@ -178,12 +164,11 @@ public class Main extends JFrame
             return;
         }
 
-        addKey(in, "");
+//        addKey(in, "");
         in += 1;
         mText.setText(in + "");
         render();
     }
-
 
     public void removeMoreButtonPressed() {
         Integer in = getInputValue();
@@ -191,32 +176,27 @@ public class Main extends JFrame
             return;
         }
 
-        deleteKey(in);
+//        deleteKey(in);
         in -= 1;
         mText.setText(in + "");
         render();
     }
 
-
     public void clearButtonPressed() {
-        mTreeTest.getBTree().clear();
+//        mTreeTest.getBTree().clear();
         mOutputConsole.setText("");
         render();
     }
 
-
-
-
-    private Iterator mIter = null;
+//    private Iterator mIter = null;
     public void listButtonPressed() {
-        if (mIter == null) {
-            mIter = new Main.IteratorImpl();
-        }
-
-        mOutputConsole.setText("");
-        mTreeTest.listItems(mIter);
+//        if (mIter == null) {
+//            mIter = new Main.IteratorImpl();
+//        }
+//
+//        mOutputConsole.setText("");
+//        mTreeTest.listItems(mIter);
     }
-
 
     public void render() {
         mGraph = new mxGraph();
@@ -229,13 +209,8 @@ public class Main extends JFrame
             mObjLists[i] = null;
         }
 
-        try {
-            generateGraphObject(mTreeTest.getBTree().getRootNode(), 0);
-        }
-        catch (ABException btex) {
-            btex.printStackTrace();
-            return;
-        }
+        generateGraphObject(arbolBMas.getRaiz(), 0);
+        
 
         Box hBox = Box.createHorizontalBox();
         hBox.add(new JLabel("   Llave:  "));
@@ -250,14 +225,14 @@ public class Main extends JFrame
         hBox.add(mClearBt);
 
         mGraph.getModel().beginUpdate();
-        
+
         try {
             int nStartXPos;
             int nStartYPos = 10;
             int cellWidth;
             for (int i = 0; i < mObjLists.length; ++i) {
                 cObjList.clear();
-                List<KeyData> objList = (List<KeyData>)mObjLists[i];
+                List<KeyData> objList = (List<KeyData>) mObjLists[i];
                 if (objList == null) {
                     continue;
                 }
@@ -290,7 +265,7 @@ public class Main extends JFrame
 
                 if (i > 0) {
                     // Conecta los nodos
-                    List<KeyData> keyList = (List<KeyData>)mObjLists[i - 1];
+                    List<KeyData> keyList = (List<KeyData>) mObjLists[i - 1];
                     int j = 0, k = 0;
                     for (Object pObj : pObjList) {
                         KeyData keyData = keyList.get(j);
@@ -301,10 +276,10 @@ public class Main extends JFrame
                         ++j;
                     }
                 }
-                
+
                 // Cambia color de las páginas
-                mGraph.setCellStyles (mxConstants.STYLE_FILLCOLOR, "#ffffff", cObjList.toArray ());
-                
+                mGraph.setCellStyles(mxConstants.STYLE_FILLCOLOR, "#ffffff", cObjList.toArray());
+
                 // Intercambia dos listas de objetos para el siguiente ciclo
                 tempObjList = pObjList;
                 pObjList = cObjList;
@@ -312,8 +287,7 @@ public class Main extends JFrame
 
                 nStartYPos += HEIGHT_STEP;
             }
-        }
-        finally {
+        } finally {
             mGraph.getModel().endUpdate();
         }
 
@@ -326,7 +300,6 @@ public class Main extends JFrame
         revalidate();
     }
 
-
     public void addClickHandler(mxGraphComponent graphComponent) {
         // mxGraphComponent graphComponent = new mxGraphComponent(mGraph);
         getContentPane().add(graphComponent);
@@ -337,11 +310,10 @@ public class Main extends JFrame
                 if (cell != null) {
                     println("cell=" + mGraph.getLabel(cell));
                 }
-                */
+                 */
             }
         });
     }
-
 
     public static void centreWindow(JFrame frame) {
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -350,91 +322,86 @@ public class Main extends JFrame
         frame.setLocation(x, y);
     }
 
-
-    private void generateGraphObject(Nodo<Integer, String> treeNode, int nLevel) throws ABException {
-        if ((treeNode == null) ||
-            (treeNode.mActualKeyNum == 0)) {
+    private void generateGraphObject(Nodo<Integer> nodoArbol, int nivel){
+        if ((nodoArbol == null)
+                || (nodoArbol.numClaves == 0)) {
             return;
         }
 
-        int currentKeyNum = treeNode.mActualKeyNum;
-        KeyValue<Integer, String> keyVal;
-
-        List<KeyData> keyList = (List<KeyData>)mObjLists[nLevel];
+        int numActualClaves = nodoArbol.numClaves;
+        //KeyValue<Integer, String> keyVal;
+        Object keyVal;
+        List<KeyData> keyList = (List<KeyData>) mObjLists[nivel];
         if (keyList == null) {
             keyList = new ArrayList<KeyData>();
-            mObjLists[nLevel] = keyList;
+            mObjLists[nivel] = keyList;
         }
 
         mBuf.setLength(0);
         // Renderiza las claves en el nodo
-        for (int i = 0; i < currentKeyNum; ++i) {
+        for (int i = 0; i < numActualClaves; ++i) {
             if (i > 0) {
                 mBuf.append(" | ");
             }
 
-            keyVal = treeNode.mKeys[i];
-            mBuf.append(keyVal.mKey);
-            mBuf.append("("+keyVal.mValue+")");
+            keyVal = nodoArbol.claves[i];
+            mBuf.append(keyVal);
+            //mBuf.append("(" + keyVal.mValue + ")");
         }
 
-        keyList.add(new KeyData(mBuf.toString(), currentKeyNum));
+        keyList.add(new KeyData(mBuf.toString(), numActualClaves));
 
-        if (treeNode.mEsHoja) {
+        if (nodoArbol.getTipoNodo()== NodoHoja) {
             return;
         }
 
-        ++nLevel;
-        for (int i = 0; i < currentKeyNum + 1; ++i) {
-            generateGraphObject(treeNode.mChildren[i], nLevel);
+        ++nivel;
+        for (int i = 0; i < numActualClaves + 1; ++i) {
+            NodoInterno<Integer> nodoInterno = (NodoInterno<Integer>) nodoArbol;
+            generateGraphObject((Nodo<Integer>) nodoInterno.hijos[i], nivel);
         }
     }
-
 
     public void println(String strText) {
         mOutputConsole.append(strText);
         mOutputConsole.append("\n");
     }
 
-
     public void searchKey(Integer key) {
-        println("Buscar la llave  = " + key);
-        String strVal = mTreeTest.getBTree().search(key);
-        if (strVal != null) {
-            println("Llave = " + key + " | Valor = " + strVal);
-        }
-        else {
-            println("No hay un valor para la llave  = " + key);
-        }
+//        println("Buscar la llave  = " + key);
+////        String strVal = mTreeTest.getBTree().search(key);
+//        if (strVal != null) {
+//            println("Llave = " + key + " | Valor = " + strVal);
+//        } else {
+//            println("No hay un valor para la llave  = " + key);
+//        }
     }
 
-
-    public void deleteKey(Integer key) {
-        String strVal = mTreeTest.getBTree().delete(key);
-        println("Borrar llave = " + key + " | valor = " + strVal);
-    }
-
-
+//    public void deleteKey(Integer key) {
+//        String strVal = mTreeTest.getBTree().delete(key);
+//        println("Borrar llave = " + key + " | valor = " + strVal);
+//    }
+//
     public void addKey(Integer key, String value) {
         println("Add key = " + key);
-        mTreeTest.getBTree().insertar(key, value);
+//        mTreeTest.getBTree().insertar(key, value);
+        arbolBMas.insertar(key, value);
     }
+//
+//    public final void generateTestData() {
+//        for (int i = 1; i < 42; ++i) {
+//            mTreeTest.add(i, " " + i);
+//        }
+//
+//        try {
+//            mTreeTest.delete(24);
+//            mTreeTest.delete(23);
+//            mTreeTest.delete(27);
+//        } catch (ABException btex) {
+//            btex.printStackTrace();
+//        }
+//    }
 
-
-    public final void generateTestData() {
-        for (int i = 1; i < 42; ++i) {
-            mTreeTest.add(i, " " + i);
-        }
-
-        try {
-            mTreeTest.delete(24);
-            mTreeTest.delete(23);
-            mTreeTest.delete(27);
-        }
-        catch (ABException btex) {
-            btex.printStackTrace();
-        }
-    }
     public static void main(String[] args) {
         Main frame = new Main();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -445,6 +412,7 @@ public class Main extends JFrame
     }
 
     class KeyData {
+
         String mKeys = null;
         int mKeyNum = 0;
 
@@ -454,22 +422,23 @@ public class Main extends JFrame
         }
     }
 
-    class IteratorImpl<K extends Comparable, V> implements Iterator<K, V> {
-        private StringBuilder mBuf = new StringBuilder();
-
-        @Override
-        public boolean item(K key, V value) {
-            mBuf.setLength(0);
-            mBuf.append(key)
-                .append("  |  Valor = ")
-                .append(value);
-            println(mBuf.toString());
-            /*
-            if (key.compareTo(30) == 0) {
-                return false;
-            }
-            */
-            return true;
-        }
-    }
+//    class IteratorImpl<K extends Comparable, V> implements Iterator<K, V> {
+//
+//        private StringBuilder mBuf = new StringBuilder();
+//
+//        @Override
+//        public boolean item(K key, V value) {
+//            mBuf.setLength(0);
+//            mBuf.append(key)
+//                    .append("  |  Valor = ")
+//                    .append(value);
+//            println(mBuf.toString());
+//            /*
+//            if (key.compareTo(30) == 0) {
+//                return false;
+//            }
+//             */
+//            return true;
+//        }
+//    }
 }
