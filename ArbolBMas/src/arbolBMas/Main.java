@@ -13,13 +13,7 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 // import javax.swing.JFrame;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
@@ -31,7 +25,7 @@ public class Main extends JFrame {
     public final static int APP_HEIGHT = 650;
     public final static int HEIGHT_STEP = 80;
     public final static int NODE_HEIGHT = 30;
-    public final static int NODE_DIST = 16;
+    public final static int NODE_DIST = 20;
     public final static int TREE_HEIGHT = 32;
 
     private final StringBuilder mBuf;
@@ -136,13 +130,18 @@ public class Main extends JFrame {
     public void addButtonPressed() {
         Integer in = getInputValue();
         String on = nText.getText().trim();
+
         if (in == null) {
             return;
         }
 
         mText.setText("");
         nText.setText("");
+
         addKey(in, on);
+        String inord="";
+        arbolBMas.inorden(arbolBMas.getRaiz());
+        println(inord);
         render();
     }
 
@@ -154,7 +153,7 @@ public class Main extends JFrame {
 
         mText.setText("");
         nText.setText("");
-//        deleteKey(in);
+        deleteKey(in);
         render();
     }
 
@@ -218,8 +217,8 @@ public class Main extends JFrame {
         hBox.add(nText);
         hBox.add(mAddBt);
         hBox.add(mRemoveBt);
-        hBox.add(mAddMoreBt);
-        hBox.add(mRemoveMoreBt);
+        //hBox.add(mAddMoreBt);
+        //hBox.add(mRemoveMoreBt);
         hBox.add(mSearchKeyBt);
         hBox.add(mListBt);
         hBox.add(mClearBt);
@@ -228,7 +227,7 @@ public class Main extends JFrame {
 
         try {
             int nStartXPos;
-            int nStartYPos = 10;
+            int nStartYPos = 100;
             int cellWidth;
             for (int i = 0; i < mObjLists.length; ++i) {
                 cObjList.clear();
@@ -240,7 +239,7 @@ public class Main extends JFrame {
                 int totalWidth = 0;
                 int nCount = 0;
                 for (KeyData keyData : objList) {
-                    totalWidth += keyData.mKeys.length() * 6;
+                    totalWidth += keyData.mKeys.length() * 5;
                     if (nCount > 0) {
                         totalWidth += NODE_DIST;
                     }
@@ -257,8 +256,8 @@ public class Main extends JFrame {
                     if (len == 1) {
                         len += 2;
                     }
-                    cellWidth = len * 6;
-                    Object gObj = mGraph.insertVertex(parent, null, keyData.mKeys, nStartXPos, nStartYPos, cellWidth, 24);
+                    cellWidth = len * 8;
+                    Object gObj = mGraph.insertVertex(parent, null, keyData.mKeys, nStartXPos, nStartYPos, cellWidth, 35);
                     cObjList.add(gObj);
                     nStartXPos += (cellWidth + NODE_DIST);
                 }
@@ -278,7 +277,7 @@ public class Main extends JFrame {
                 }
 
                 // Cambia color de las páginas
-                mGraph.setCellStyles(mxConstants.STYLE_FILLCOLOR, "#ffffff", cObjList.toArray());
+                mGraph.setCellStyles(mxConstants.STYLE_FILLCOLOR, "#ff7b5a", cObjList.toArray());
 
                 // Intercambia dos listas de objetos para el siguiente ciclo
                 tempObjList = pObjList;
@@ -341,7 +340,7 @@ public class Main extends JFrame {
         // Renderiza las claves en el nodo
         for (int i = 0; i < numActualClaves; ++i) {
             if (i > 0) {
-                mBuf.append(" | ");
+                mBuf.append(" ~ ");
             }
 
             keyVal = nodoArbol.claves[i];
@@ -368,22 +367,29 @@ public class Main extends JFrame {
     }
 
     public void searchKey(Integer key) {
+        String strVal = arbolBMas.buscar(key);
+
 //        println("Buscar la llave  = " + key);
 ////        String strVal = mTreeTest.getBTree().search(key);
-//        if (strVal != null) {
-//            println("Llave = " + key + " | Valor = " + strVal);
-//        } else {
-//            println("No hay un valor para la llave  = " + key);
-//        }
+
+        if (strVal != null) {
+            JOptionPane.showMessageDialog(null,"La llave "+key+" se encuentra en el arbol con el nombre "+strVal);
+            //System.out.println(key +"Existe");
+            //println("Llave = " + key + " | Valor = " + strVal);
+        } else {
+            JOptionPane.showMessageDialog(null,"La llave "+key+" no se encuentra en el arbol");
+            //println("No hay un valor para la llave  = " + key);
+        }
     }
 
-//    public void deleteKey(Integer key) {
+    public void deleteKey(Integer key) {
+        String strVal = arbolBMas.eliminar(key);
 //        String strVal = mTreeTest.getBTree().delete(key);
 //        println("Borrar llave = " + key + " | valor = " + strVal);
-//    }
+    }
 //
     public void addKey(Integer key, String value) {
-        println("Add key = " + key);
+        //println("Add key = " + key);
 //        mTreeTest.getBTree().insertar(key, value);
         arbolBMas.insertar(key, value);
     }

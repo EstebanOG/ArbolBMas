@@ -49,8 +49,9 @@ public class ArbolBMas<TKey extends Comparable<TKey>, TValue> {
     /**
      *
      * Elimina una clave y su valor asociado del árbol.
+     * @return
      */
-    public void eliminar(TKey key) {
+    public String eliminar(TKey key) {
         NodoHoja<TKey, TValue> hoja = this.encontrarElNodoHoja(key);
 
         if (hoja.eliminar(key) && hoja.nodoBajo()) {
@@ -59,6 +60,7 @@ public class ArbolBMas<TKey extends Comparable<TKey>, TValue> {
                 this.raiz = n;
             }
         }
+        return null;
     }
 
     /**
@@ -73,5 +75,8 @@ public class ArbolBMas<TKey extends Comparable<TKey>, TValue> {
         }
 
         return (NodoHoja<TKey, TValue>) nodo;
+    }
+
+    public void inorden(Nodo<TKey> raiz) {
     }
 }
