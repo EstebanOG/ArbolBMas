@@ -40,7 +40,7 @@ public class Main extends JFrame {
     private final JTextArea mOutputConsole;
     private final ArbolBMas<Integer, String> arbolBMas;
 
-    private String inorden, vsam = "";
+    private String inorden = "", vsam = "";
 
     public Main() {
         super("Arbol B");
@@ -197,7 +197,7 @@ public class Main extends JFrame {
 //
 //        mOutputConsole.setText("");
 //        mTreeTest.listItems(mIter);
-        JOptionPane.showMessageDialog(null, "Páginas VSAM: \n"+vsam);
+        JOptionPane.showMessageDialog(null, "Páginas VSAM: \n"+vsam+"\nInorden: \n"+inorden);
     }
 
     public void render() {
@@ -211,11 +211,12 @@ public class Main extends JFrame {
             mObjLists[i] = null;
         }
         this.vsam = "";
+        this.inorden = "";
         generateGraphObject(arbolBMas.getRaiz(), 0);
         if (vsam.length() > 2) {
             this.vsam = vsam.substring(0, vsam.length() - 2);
         }
-        System.out.println("Páginas VSAM:" + vsam);
+//        System.out.println("Páginas VSAM:" + vsam);
 
         Box hBox = Box.createHorizontalBox();
         hBox.add(new JLabel("   Llave:  "));
@@ -359,18 +360,20 @@ public class Main extends JFrame {
         if (nodoArbol.getTipoNodo() == NodoHoja) {
             for (int i = 0; i < numActualClaves + 1; i++) {
                 if (nodoArbol.getClave(i) != null) {
-                    this.vsam += nodoArbol.getClave(i);
+                    this.vsam += nodoArbol.getClave(i) + " ";
+                    this.inorden += nodoArbol.getClave(i) +" ";
                 }
             }
             this.vsam += "->";
             return;
         }
-
+        
         ++nivel;
         for (int i = 0; i < numActualClaves + 1; ++i) {
             NodoInterno<Integer> nodoInterno = (NodoInterno<Integer>) nodoArbol;
             generateGraphObject((Nodo<Integer>) nodoInterno.hijos[i], nivel);
-
+            if ( nodoArbol.getClave(i)!=null)
+                this.inorden += nodoArbol.getClave(i) + " ";
         }
 
     }
