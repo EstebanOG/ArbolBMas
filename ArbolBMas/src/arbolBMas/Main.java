@@ -40,6 +40,8 @@ public class Main extends JFrame {
     private final JTextArea mOutputConsole;
     private final ArbolBMas<Integer, String> arbolBMas;
 
+    private String inorden, vsam = "";
+
     public Main() {
         super("Arbol B");
 //        mTreeTest = new Test();
@@ -139,7 +141,7 @@ public class Main extends JFrame {
         nText.setText("");
 
         addKey(in, on);
-        String inord="";
+        String inord = "";
         arbolBMas.inorden(arbolBMas.getRaiz());
         println(inord);
         render();
@@ -195,6 +197,7 @@ public class Main extends JFrame {
 //
 //        mOutputConsole.setText("");
 //        mTreeTest.listItems(mIter);
+        JOptionPane.showMessageDialog(null, "Páginas VSAM: \n"+vsam);
     }
 
     public void render() {
@@ -207,9 +210,12 @@ public class Main extends JFrame {
         for (int i = 0; i < TREE_HEIGHT; ++i) {
             mObjLists[i] = null;
         }
-
+        this.vsam = "";
         generateGraphObject(arbolBMas.getRaiz(), 0);
-        
+        if (vsam.length() > 2) {
+            this.vsam = vsam.substring(0, vsam.length() - 2);
+        }
+        System.out.println("Páginas VSAM:" + vsam);
 
         Box hBox = Box.createHorizontalBox();
         hBox.add(new JLabel("   Llave:  "));
@@ -321,7 +327,7 @@ public class Main extends JFrame {
         frame.setLocation(x, y);
     }
 
-    private void generateGraphObject(Nodo<Integer> nodoArbol, int nivel){
+    private void generateGraphObject(Nodo<Integer> nodoArbol, int nivel) {
         if ((nodoArbol == null)
                 || (nodoArbol.numClaves == 0)) {
             return;
@@ -350,7 +356,13 @@ public class Main extends JFrame {
 
         keyList.add(new KeyData(mBuf.toString(), numActualClaves));
 
-        if (nodoArbol.getTipoNodo()== NodoHoja) {
+        if (nodoArbol.getTipoNodo() == NodoHoja) {
+            for (int i = 0; i < numActualClaves + 1; i++) {
+                if (nodoArbol.getClave(i) != null) {
+                    this.vsam += nodoArbol.getClave(i);
+                }
+            }
+            this.vsam += "->";
             return;
         }
 
@@ -358,7 +370,9 @@ public class Main extends JFrame {
         for (int i = 0; i < numActualClaves + 1; ++i) {
             NodoInterno<Integer> nodoInterno = (NodoInterno<Integer>) nodoArbol;
             generateGraphObject((Nodo<Integer>) nodoInterno.hijos[i], nivel);
+
         }
+
     }
 
     public void println(String strText) {
@@ -373,11 +387,11 @@ public class Main extends JFrame {
 ////        String strVal = mTreeTest.getBTree().search(key);
 
         if (strVal != null) {
-            JOptionPane.showMessageDialog(null,"La llave "+key+" se encuentra en el arbol con el nombre "+strVal);
+            JOptionPane.showMessageDialog(null, "La llave " + key + " se encuentra en el arbol con el nombre " + strVal);
             //System.out.println(key +"Existe");
             //println("Llave = " + key + " | Valor = " + strVal);
         } else {
-            JOptionPane.showMessageDialog(null,"La llave "+key+" no se encuentra en el arbol");
+            JOptionPane.showMessageDialog(null, "La llave " + key + " no se encuentra en el arbol");
             //println("No hay un valor para la llave  = " + key);
         }
     }
@@ -388,6 +402,7 @@ public class Main extends JFrame {
 //        println("Borrar llave = " + key + " | valor = " + strVal);
     }
 //
+
     public void addKey(Integer key, String value) {
         //println("Add key = " + key);
 //        mTreeTest.getBTree().insertar(key, value);
