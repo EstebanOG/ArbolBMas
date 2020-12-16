@@ -132,19 +132,32 @@ public class Main extends JFrame {
     public void addButtonPressed() {
         Integer in = getInputValue();
         String on = nText.getText().trim();
+        boolean dou = doubleKey(in);
 
-        if (in == null) {
-            return;
+        if ( dou == true){
+            JOptionPane.showMessageDialog(null,"La llave "+in+" ya se encuentra en el arbol");
+            //mText.setText("");
+            //nText.setText("");
+        }else{
+
+            if (in == null) {
+                return;
+            }
+            //mText.setText("");
+            //nText.setText("");
+
+            addKey(in, on);
+            String inord = "";
+            arbolBMas.inorden(arbolBMas.getRaiz());
+            println(inord);
+
         }
 
-        mText.setText("");
-        nText.setText("");
 
-        addKey(in, on);
-        String inord = "";
-        arbolBMas.inorden(arbolBMas.getRaiz());
-        println(inord);
+
+
         render();
+        println("Páginas VSAM: "+vsam+"\nInorden: "+inorden);
     }
 
     public void removeButtonPressed() {
@@ -157,17 +170,27 @@ public class Main extends JFrame {
         nText.setText("");
         deleteKey(in);
         render();
+        println("Páginas VSAM: "+vsam+"\nInorden: "+inorden);
     }
 
     public void addMoreButtonPressed() {
         Integer in = getInputValue();
-        if (in == null) {
+        boolean dou = doubleKey(in);
+
+        if ( dou == true){
             return;
-        }
+        }else{
+            if (in == null) {
+                return;
+            }
+
 
 //        addKey(in, "");
-        in += 1;
-        mText.setText(in + "");
+            in += 1;
+            mText.setText(in + "");
+        }
+        println( "Páginas VSAM: \n"+vsam+"\nInorden: \n"+inorden);
+
         render();
     }
 
@@ -230,6 +253,7 @@ public class Main extends JFrame {
         hBox.add(mListBt);
         hBox.add(mClearBt);
 
+
         mGraph.getModel().beginUpdate();
 
         try {
@@ -284,7 +308,7 @@ public class Main extends JFrame {
                 }
 
                 // Cambia color de las páginas
-                mGraph.setCellStyles(mxConstants.STYLE_FILLCOLOR, "#ff7b5a", cObjList.toArray());
+                mGraph.setCellStyles(mxConstants.STYLE_FILLCOLOR, "#f5b041", cObjList.toArray());
 
                 // Intercambia dos listas de objetos para el siguiente ciclo
                 tempObjList = pObjList;
@@ -347,11 +371,14 @@ public class Main extends JFrame {
         // Renderiza las claves en el nodo
         for (int i = 0; i < numActualClaves; ++i) {
             if (i > 0) {
-                mBuf.append(" ~ ");
-            }
 
+                mBuf.append(" ~ ");
+
+            }
+            String on = nText.getText().trim();
             keyVal = nodoArbol.claves[i];
             mBuf.append(keyVal);
+            mBuf.append(on);
             //mBuf.append("(" + keyVal.mValue + ")");
         }
 
@@ -398,6 +425,21 @@ public class Main extends JFrame {
             //println("No hay un valor para la llave  = " + key);
         }
     }
+    public boolean doubleKey(Integer key) {
+        String strVal = arbolBMas.buscar(key);
+
+//        println("Buscar la llave  = " + key);
+////        String strVal = mTreeTest.getBTree().search(key);
+
+        if (strVal != null) {
+            return true;
+            //System.out.println(key +"Existe");
+            //println("Llave = " + key + " | Valor = " + strVal);
+        } else {
+            return false;
+            //println("No hay un valor para la llave  = " + key);
+        }
+    }
 
     public void deleteKey(Integer key) {
         String strVal = arbolBMas.eliminar(key);
@@ -410,6 +452,7 @@ public class Main extends JFrame {
         //println("Add key = " + key);
 //        mTreeTest.getBTree().insertar(key, value);
         arbolBMas.insertar(key, value);
+
     }
 //
 //    public final void generateTestData() {

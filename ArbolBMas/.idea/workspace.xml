@@ -2,7 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5bfe7ac2-8f6a-4b06-9f69-168e30b29ae2" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/src/arbolBMas/ArbolBMas.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/arbolBMas/ArbolBMas.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/ArbolBMas.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/ArbolBMas.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$4.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$5.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$6.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$6.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$7.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$7.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$8.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$8.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$KeyData.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main$KeyData.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ArbolBMas/arbolBMas/Main.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/arbolBMas/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/arbolBMas/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -22,6 +34,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
   </component>
@@ -65,6 +78,8 @@
       <option name="presentableId" value="Default" />
       <updated>1608067456325</updated>
       <workItem from="1608067459459" duration="6654000" />
+      <workItem from="1608074586636" duration="312000" />
+      <workItem from="1608159341157" duration="3648000" />
     </task>
     <servers />
   </component>
@@ -81,5 +96,6 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>
