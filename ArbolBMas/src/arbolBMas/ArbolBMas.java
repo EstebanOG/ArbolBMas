@@ -61,11 +61,11 @@ public class ArbolBMas<TKey extends Comparable<TKey>, TValue> {
                 if (n != null) {
                     this.raiz = n;
                 }
+            }else{
+               int indice = hoja.nodoPadre.buscar(key)-1;
+                //System.out.println("indice:"+indice);
+                hoja.nodoPadre.setClave(indice, hoja.getClave(0)); 
             }
-            
-            int indice = hoja.nodoPadre.buscar(key)-1;
-            //System.out.println("indice:"+indice);
-            hoja.nodoPadre.setClave(indice, hoja.getClave(0));
         }
 
         
